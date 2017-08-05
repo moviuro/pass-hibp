@@ -38,7 +38,16 @@ hibp_set_deps() {
   _endpoint=https://haveibeenpwned.com/api/v2/pwnedpassword
   if command -v curl >/dev/null 2>&1; then
     hibp_query() {
-      curl -fq "$_endpoint/$(hibp_sha "$1")" 2>&1 | grep -q '200'
+      local _status _must_retry=0
+
+      while [[ -n "$_must_retry" ]]; do
+        _status="$(curl -s -I -X GET "$_endpoint/$(hibp_sha "$1")" | head -n 1)"
+        case "$_status" in
+          *200*) unset _must_retry; return 0 ;;
+          *404*) unset _must_retry; return 1 ;;
+          *429*) echo "Too many requests, sleeping 10" >&2; sleep 10;;
+        esac
+      done
     }
   elif command -v fetch >/dev/null 2>&1; then
     hibp_query() {
