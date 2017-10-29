@@ -80,7 +80,7 @@ cmd_hibp() {
       hibp_test "$_path"
     done
   else
-    cd $PREFIX
+    cd "$PREFIX"
     for _path in **/*\.gpg; do
       hibp_test "$_path"
     done
