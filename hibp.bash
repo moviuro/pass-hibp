@@ -59,29 +59,30 @@ hibp_set_deps() {
   fi
 }
 
+hibp_test() {
+  local _path="$1"
+  local _password="$(pass show "${_path%%.gpg}" 2>/dev/null | head -n 1)"
+
+  if [[ -z "$_password" ]]; then
+    return 0
+  elif hibp_query "$_password"; then
+    echo "$_path : compromised :("
+  fi
+}
+
 cmd_hibp() {
   hibp_set_deps
 
   local _path
-  local _password
+
   if [[ -n "$1" ]]; then
     for _path in "$@"; do
-      _password="$(pass show "${_path%%.gpg}" 2>/dev/null | head -n 1)"
-      if [[ -z "$_password" ]]; then
-        echo "$_path : has an empty password, not testing" >&2
-      elif hibp_query "$_password"; then
-        echo "$_path : compromised :("
-      fi
+      hibp_test "$_path"
     done
   else
     cd $PREFIX
     for _path in **/*\.gpg; do
-      _password="$(pass show "${_path%%.gpg}" 2>/dev/null | head -n 1)"
-      if [[ -z "$_password" ]]; then
-        echo "$_path : has an empty password, not testing" >&2
-      elif hibp_query "$_password"; then
-        echo "$_path : compromised :("
-      fi
+      hibp_test "$_path"
     done
   fi
 }
