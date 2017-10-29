@@ -45,7 +45,7 @@ hibp_set_deps() {
         case "$_status" in
           *200*) unset _must_retry; return 0 ;;
           *404*) unset _must_retry; return 1 ;;
-          *429*) echo "Too many requests, sleeping 10" >&2; sleep 10;;
+          *429*) sleep 2;;
         esac
       done
     }
