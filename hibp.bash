@@ -67,7 +67,9 @@ cmd_hibp() {
   if [[ -n "$1" ]]; then
     for _path in "$@"; do
       _password="$(pass show "${_path%%.gpg}" 2>/dev/null | head -n 1)"
-      if hibp_query "$_password"; then
+      if [[ -z "$_password" ]]; then
+        echo "$_path : has an empty password, not testing" >&2
+      elif hibp_query "$_password"; then
         echo "$_path : compromised :("
       fi
     done
@@ -75,7 +77,9 @@ cmd_hibp() {
     cd $PREFIX
     for _path in **/*\.gpg; do
       _password="$(pass show "${_path%%.gpg}" 2>/dev/null | head -n 1)"
-      if hibp_query "$_password"; then
+      if [[ -z "$_password" ]]; then
+        echo "$_path : has an empty password, not testing" >&2
+      elif hibp_query "$_password"; then
         echo "$_path : compromised :("
       fi
     done
