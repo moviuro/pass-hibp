@@ -35,7 +35,7 @@ hibp_set_deps() {
     exit 1
   fi
 
-  _endpoint=https://haveibeenpwned.com/api/v2/pwnedpassword
+  _endpoint=https://api.pwnedpasswords.com/pwnedpassword
   if command -v curl >/dev/null 2>&1; then
     hibp_query() {
       local _status _must_retry=0
