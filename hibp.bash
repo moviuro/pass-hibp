@@ -64,6 +64,7 @@ hibp_test() {
   local _password="$(pass show "${_path%%.gpg}" 2>/dev/null | head -n 1)"
 
   if [[ -z "$_password" ]]; then
+    # Not testing empty passwords
     return 0
   elif hibp_query "$_password"; then
     echo "$_path : compromised :("
