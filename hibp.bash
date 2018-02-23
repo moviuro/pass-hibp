@@ -35,6 +35,8 @@ hibp_set_deps() {
     exit 1
   fi
 
+  # The hibp_display_sha() function returns the hash prefix (5 char), then the
+  # hash suffix
   hibp_display_sha() {
     local _hash
     _hash="$(hibp_sha "$1")"
@@ -43,6 +45,11 @@ hibp_set_deps() {
     printf '%s\n' "$_hash" | grep -Eo '[a-f0-9]{35}$'
   }
 
+  # We append the hash prefix to the endpoint, and as a reply we either get a
+  # series of 'suffix: number' or a 404 HTTP error.
+  # In any case, we grep(1) for the suffix in the reply: if grep(1) fails, then
+  # the hash was not found; if grep(1) succeeds, then the hash was found and
+  # most probably the password was compromised
   _endpoint=https://api.pwnedpasswords.com/range
   if command -v curl >/dev/null 2>&1; then
     hibp_query() {
