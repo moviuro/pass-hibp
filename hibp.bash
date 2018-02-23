@@ -35,23 +35,26 @@ hibp_set_deps() {
     exit 1
   fi
 
-  _endpoint=https://api.pwnedpasswords.com/pwnedpassword
+  hibp_display_sha() {
+    local _hash
+    _hash="$(hibp_sha "$1")"
+
+    printf '%s\n' "$_hash" | grep -Eo '^[a-f0-9]{5}'
+    printf '%s\n' "$_hash" | grep -Eo '[a-f0-9]{35}$'
+  }
+
+  _endpoint=https://api.pwnedpasswords.com/range
   if command -v curl >/dev/null 2>&1; then
     hibp_query() {
-      local _status _must_retry=0
-
-      while [[ -n "$_must_retry" ]]; do
-        _status="$(curl -s -I -X GET "$_endpoint/$(hibp_sha "$1")" | head -n 1)"
-        case "$_status" in
-          *200*) unset _must_retry; return 0 ;;
-          *404*) unset _must_retry; return 1 ;;
-          *429*) sleep 2;;
-        esac
-      done
+      mapfile -t _hashes < <(hibp_display_sha "$1")
+      curl -s "$_endpoint/${_hashes[0]}" | grep -oi "${_hashes[1]}" >/dev/null 2>&1
+      return $?
     }
   elif command -v fetch >/dev/null 2>&1; then
     hibp_query() {
-      fetch -vv -o /dev/null "$_endpoint/$(hibp_sha "$1")" 2>&1 | grep -q '200 OK'
+      mapfile -t _hashes < <(hibp_display_sha "$1")
+      fetch -o - "$_endpoint/${_hashes[0]}" | grep -oi "${_hashes[1]}" >/dev/null 2>&1
+      return $?
     }
   else
     echo "No downloading utilities found :(" >&2
