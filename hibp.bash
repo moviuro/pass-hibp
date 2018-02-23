@@ -70,7 +70,7 @@ hibp_test() {
     # Not testing empty passwords
     return 0
   elif hibp_query "$_password"; then
-    echo "$_path : compromised :("
+    echo "$_path : compromised :(" >&2
   fi
 }
 
