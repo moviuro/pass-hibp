@@ -6,7 +6,7 @@
 cmd_hibp_usage() {
   cat <<-_EOF
 Usage:
-$PROGAME hibp [pass-name [...]]
+$PROGRAM hibp [pass-name [...]]
   Queries the haveibeenpwned HTTPS API to check if the passwords have been
   compromised.
   See https://haveibeenpwned.com/API/v2#PwnedPasswords
